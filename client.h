@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <sys/socket.h>
+#include <sys/syscall.h>
 #include <netdb.h>
 
 #endif

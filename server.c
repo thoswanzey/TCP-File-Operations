@@ -40,13 +40,32 @@ int server_init()
 
 void command_select(char *cmd)
 {
+   char * args[32];
+   int nargs;
+   char * token;
+   int i = 1;
+   args[0] = strtok(cmd, " ");
    
-   if(!strcmp(cmd, "pwd")) // return current working directory
+   while(token = strtok(NULL, " ")){
+      args[i] = token;
+      i++;
+   }
+   nargs = i;
+
+   if(!strcmp(args[0], "pwd")) // return current working directory
    {
       char cwd[MAX];
       getcwd(cwd, sizeof(cwd));
-
       n = write(csock, cwd, MAX);
+   }
+   else if(!strcmp(args[0], "cd")){
+      if(command_cd(nargs, args))
+         n = write (csock, "Invalid Command!\n", sizeof("Invalid Command!\n"));
+      else
+         n = write (csock, "Directory successfully changed!\n", sizeof("Directory successfully changed!\n"));  
+   }
+   else{
+      n = write (csock, "Invalid Command!\n", sizeof("Invalid Command!\n"));
    }
 }
 
