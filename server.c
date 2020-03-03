@@ -4,8 +4,7 @@
 #define  MAX 256
 #define SERVER_HOST "localhost"
 #define SERVER_IP   "127.0.0.1"
-#define SERVER_PORT 1337
-
+#define SERVER_PORT 1234
 // Define variables:
 struct sockaddr_in  server_addr, client_addr;
 int mysock, csock;
@@ -39,7 +38,7 @@ int server_init()
    printf("===================== init done =======================\n");
 }
 
-void command_select(void *cmd)
+void command_select(char *cmd)
 {
    
    if(!strcmp(cmd, "pwd")) // return current working directory
@@ -53,7 +52,8 @@ void command_select(void *cmd)
 
 int main(int argc, char *argv[])
 {
-   char line[MAX];
+   char line[MAX], echo[MAX];
+
    server_init(); 
    
    while(1){    // Try to accept a client request
@@ -77,18 +77,11 @@ int main(int argc, char *argv[])
        n = read(csock, line, MAX);
        if (n==0){
             printf("server: client died, server loops\n");
-            int yes = 1;
-            setsockopt(csock,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)); // tell kernel it's okay to rebind socket
+            int true = 1;
+            setsockopt(csock,SOL_SOCKET,SO_REUSEADDR,&true,sizeof(int)); // tell kernel it's okay to rebind socket
             close(csock); // close socket
            break;
       }
-      // show the line string
-      printf("server: read  n=%d bytes; line=[%s]\n", n, line);
-
-      // process the line from clinet
-      strcat(line, " ECHO");
-      // send the echo line to client 
-      //n = write(csock, line, MAX);
 
       command_select(line);
 

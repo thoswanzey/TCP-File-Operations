@@ -4,7 +4,7 @@
 #define MAX          256
 #define SERVER_HOST "localhost"
 #define SERVER_IP   "127.0.0.1"
-#define SERVER_PORT  1337
+#define SERVER_PORT  1234
 
 // Define variables
 struct sockaddr_in  server_addr; 
