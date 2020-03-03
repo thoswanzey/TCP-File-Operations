@@ -7,6 +7,13 @@
 #include <unistd.h>
 
 #include <sys/socket.h>
+#include <sys/syscall.h>
 #include <netdb.h>
+
+int command_cd(int nargs, char * args[]);
+
+
+
+
 
 #endif
