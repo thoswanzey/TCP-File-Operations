@@ -1,10 +1,5 @@
 // This is the echo SERVER server.c
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <sys/socket.h>
-#include <netdb.h>
+#include "server.h"
 
 #define  MAX 256
 #define SERVER_HOST "localhost"
