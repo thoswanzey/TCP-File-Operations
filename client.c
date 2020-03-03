@@ -6,9 +6,13 @@
 #define SERVER_IP   "127.0.0.1"
 #define SERVER_PORT  1234
 
-// Define variables
+// Define GLOBAL variables
 struct sockaddr_in  server_addr; 
 int sock, r;
+char line[MAX];
+char * args[32];
+int nargs;
+
 
 // clinet initialization code
 int client_init()
@@ -45,7 +49,7 @@ int client_init()
 int main(int argc, char *argv[ ])
 {
   int n;
-  char line[MAX], ans[MAX];
+  char ans[MAX];
 
   client_init();
 
@@ -56,16 +60,48 @@ int main(int argc, char *argv[ ])
     fgets(line, MAX, stdin);         // get a line (end with \n) from stdin
     line[strlen(line)-1] = 0;        // kill \n at end
     if (line[0]==0)                  // exit if NULL line
-       exit(0);
+      exit(0);
 
-    // Send ENTIRE line to server
-    n = write(sock, line, MAX);
-    printf("client: wrote n=%d bytes; line=(%s)\n", n, line);
+    if(!local_command_handler()){
+      // Send ENTIRE line to server
+      n = write(sock, line, MAX);
+      printf("client: wrote n=%d bytes; line=(%s)\n", n, line);
 
-    // Read a line from sock and show it
-    n = read(sock, ans, MAX);
-    printf("client: read  n=%d bytes; echo=(%s)\n", n, ans);
+      // Read a line from sock and show it
+      n = read(sock, ans, MAX);
+      printf("client: read  n=%d bytes; echo=(%s)\n", n, ans);
+    }
   }
 }
 
 
+
+
+int local_command_handler(){
+  int nargs, i = 1;
+  char * token;
+  args[0] = strtok(line, " ");
+  while(token = strtok(NULL, " ")){
+      args[i] = token;
+      i++;
+  }
+   nargs = i;
+
+  char cwd[MAX];
+  getcwd(cwd, sizeof(cwd));
+
+  if(!strcmp(args[0], "lpwd")){
+      printf("%s\n", cwd);
+  }
+  else if(!strcmp(args[0], "quit")){
+      printf("\nExiting...\n");
+      exit(0);
+  }
+  //..
+  else{
+    return 0;  //Pass to server
+  }
+
+  return 1;    //local command, so no need to send to server
+
+}
