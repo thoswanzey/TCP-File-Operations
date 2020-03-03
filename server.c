@@ -38,7 +38,7 @@ int server_init()
    printf("===================== init done =======================\n");
 }
 
-void command_select(char *cmd)
+void command_select(char cmd[])
 {
    char * args[32];
    int nargs;
@@ -63,6 +63,15 @@ void command_select(char *cmd)
          n = write (csock, "Invalid Command!\n", sizeof("Invalid Command!\n"));
       else
          n = write (csock, "Directory successfully changed!\n", sizeof("Directory successfully changed!\n"));  
+   }
+   else if(!strcmp(args[0], "rm")){
+      n = command_rm(nargs, args);
+   }
+   else if(!strcmp(args[0], "rmdir")){
+      n = command_rmdir(nargs, args);
+   }
+   else if(!strcmp(args[0], "mkdir")){
+      n = command_mkdir(nargs, args);
    }
    else{
       n = write (csock, "Invalid Command!\n", sizeof("Invalid Command!\n"));
@@ -102,9 +111,10 @@ int main(int argc, char *argv[])
            break;
       }
 
+      strcpy(echo, line);//String will be destroyed by strtok()
       command_select(line);
 
-      printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, line);
+      printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, echo);
       printf("server: ready for next request\n");
     }
  }
