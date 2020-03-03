@@ -8,12 +8,19 @@
 #include <sys/socket.h>
 #include <sys/syscall.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <netdb.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <time.h>
+#include <libgen.h>
 
+#define BLKSIZE 4096
 #define MAX          256
 #define SERVER_HOST "localhost"
 #define SERVER_IP   "127.0.0.1"
 #define SERVER_PORT  1234
+
 
 
 int client_init(void);
@@ -22,6 +29,11 @@ void command_lcd(int nargs, char * args[]);
 void command_lrm(int nargs, char * args[]);
 void command_lrmdir(int nargs, char * args[]);
 void command_lmkdir(int nargs, char * args[]);
+void command_lcat(int nargs, char * args[]);
+int command_lls(int nargs, char * args[]);
+void ls_dir(char *dname);
+int ls_file(char *fname);
+
 
 #endif
 

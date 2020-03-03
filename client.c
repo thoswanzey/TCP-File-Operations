@@ -6,7 +6,8 @@
 struct sockaddr_in  server_addr; 
 int sock, r;
 char line[MAX];
-
+char *t1 = "xwrxwrxwr-------";
+char *t2 = "----------------";
 
 int main(int argc, char *argv[ ])
 {
