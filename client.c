@@ -1,50 +1,12 @@
 // The echo client client.c
 #include "client.h"
 
-#define MAX          256
-#define SERVER_HOST "localhost"
-#define SERVER_IP   "127.0.0.1"
-#define SERVER_PORT  1234
 
 // Define GLOBAL variables
 struct sockaddr_in  server_addr; 
 int sock, r;
 char line[MAX];
-char * args[32];
-int nargs;
 
-
-// clinet initialization code
-int client_init()
-{
-  printf("======= clinet init ==========\n");
-  
-  printf("1 : create a TCP socket\n");
-  sock = socket(AF_INET, SOCK_STREAM, 0);
-  if (sock<0){
-     printf("socket call failed\n");
-     exit(1);
-  }
-
-  printf("2 : fill server_addr with server's IP and PORT#\n");
-  server_addr.sin_family = AF_INET;
-  //server_addr.sin_addr.s_addr = htonl((127<<24) + 1);
-  server_addr.sin_addr.s_addr = htons(INADDR_ANY);
-  server_addr.sin_port = htons(SERVER_PORT);
-
-  // Connect to server
-  printf("3 : connecting to server ....\n");
-  r = connect(sock,(struct sockaddr *)&server_addr, sizeof(server_addr));
-  if (r < 0){
-     printf("connect failed\n");
-     exit(3);
-  }
-  printf("4 : connected OK to\n"); 
-  printf("---------------------------------------------------------\n");
-  printf("hostname=%s PORT=%d\n", SERVER_HOST, SERVER_PORT);
-  printf("---------------------------------------------------------\n");
-  printf("========= init done ==========\n");
-}
 
 int main(int argc, char *argv[ ])
 {
@@ -55,7 +17,7 @@ int main(int argc, char *argv[ ])
 
   printf("********  processing loop  *********\n");
   while (1){
-    printf("input a line : ");
+    printf(BOLD CYN"input a line : "RESET);
     bzero(line, MAX);                // zero out line[ ]
     fgets(line, MAX, stdin);         // get a line (end with \n) from stdin
     line[strlen(line)-1] = 0;        // kill \n at end
@@ -75,33 +37,3 @@ int main(int argc, char *argv[ ])
 }
 
 
-
-
-int local_command_handler(){
-  int nargs, i = 1;
-  char * token;
-  args[0] = strtok(line, " ");
-  while(token = strtok(NULL, " ")){
-      args[i] = token;
-      i++;
-  }
-   nargs = i;
-
-  char cwd[MAX];
-  getcwd(cwd, sizeof(cwd));
-
-  if(!strcmp(args[0], "lpwd")){
-      printf("%s\n", cwd);
-  }
-  else if(!strcmp(args[0], "quit")){
-      printf("\nExiting...\n");
-      exit(0);
-  }
-  //..
-  else{
-    return 0;  //Pass to server
-  }
-
-  return 1;    //local command, so no need to send to server
-
-}
