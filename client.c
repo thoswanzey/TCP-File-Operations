@@ -1,10 +1,5 @@
 // The echo client client.c
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <sys/socket.h>
-#include <netdb.h>
+#include "client.h"
 
 #define MAX          256
 #define SERVER_HOST "localhost"
