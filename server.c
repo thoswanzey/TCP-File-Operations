@@ -40,9 +40,10 @@ int main(int argc, char *argv[])
            break;
       }
 
+      strcpy(echo, line);//String will be destroyed by strtok()
       command_select(line);
 
-      printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, line);
+      printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, echo);
       printf("server: ready for next request\n");
     }
  }

@@ -21,8 +21,9 @@
 void command_select(char *cmd);
 int server_init();
 int command_cd(int nargs, char * args[]);
-int send_file(char *filename);
-int get_file(char *filename);
+int command_rm(int nargs, char * args[]);
+int command_rmdir(int nargs, char * args[]);
+int command_mkdir(int nargs, char * args[]);
 
 
 
