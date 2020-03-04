@@ -43,7 +43,9 @@ int client_init(void)
 int local_command_handler(void){
     int nargs, i = 1;
     char *token, *args[32];
-    args[0] = strtok(line, " ");
+    char command[MAX];
+    strcpy(command, line);
+    args[0] = strtok(command, " ");
     while(token = strtok(NULL, " ")){
         args[i] = token;
         i++;

@@ -8,11 +8,13 @@
 
 #include <sys/socket.h>
 #include <sys/syscall.h>
+#include <sys/stat.h>
 #include <netdb.h>
 
 int command_cd(int nargs, char * args[]);
-
-
+int command_rm(int nargs, char * args[]);
+int command_rmdir(int nargs, char * args[]);
+int command_mkdir(int nargs, char * args[]);
 
 
 
