@@ -9,6 +9,7 @@ char line[MAX];
 char *t1 = "xwrxwrxwr-------";
 char *t2 = "----------------";
 
+
 int main(int argc, char *argv[ ])
 {
   int n;

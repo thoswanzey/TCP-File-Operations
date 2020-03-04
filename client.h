@@ -33,7 +33,8 @@ void command_lcat(int nargs, char * args[]);
 int command_lls(int nargs, char * args[]);
 void ls_dir(char *dname);
 int ls_file(char *fname);
-
+int get_file(char *filename);
+int send_file(char *filename);
 
 #endif
 
