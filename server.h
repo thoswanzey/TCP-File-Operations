@@ -24,7 +24,7 @@ int command_cd(int nargs, char * args[]);
 int command_rm(int nargs, char * args[]);
 int command_rmdir(int nargs, char * args[]);
 int command_mkdir(int nargs, char * args[]);
-
-
+int get_file(char *filename);
+int send_file(char *filename);
 
 #endif
