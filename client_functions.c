@@ -41,6 +41,8 @@ int client_init(void)
 
 
 int local_command_handler(void){
+    char buf[MAX];
+
     int nargs, i = 1;
     char *token, *args[32];
     char command[MAX];
@@ -79,6 +81,17 @@ int local_command_handler(void){
     }
     else if(!strcmp(args[0], "lls")){
         command_lls(nargs, args);
+    }
+    else if(!strcmp(args[0], "get")) {
+        bzero(buf, MAX);
+        get_file(args[1]);
+    }
+    else if(!strcmp(args[0], "put")) {
+        bzero(buf, MAX);
+        strcat(buf, "put ");
+        strcat(buf, args[1]);
+        write(sock, buf, MAX); // send file request
+        send_file(args[1]);
     }
     //..
     else{
@@ -233,10 +246,10 @@ int ls_file(char *fname)
         else
             printf("%c", t2[i]); // or print -
     }
-    printf("%4d ",sp->st_nlink); // link count
+    printf("%4lud ",sp->st_nlink); // link count
     printf("%4d ",sp->st_gid); // gid
     printf("%4d ",sp->st_uid); // uid
-    printf("%8d ",sp->st_size); // file size
+    printf("%8ld ",sp->st_size); // file size
     // print time
     strcpy(ftime, ctime(&sp->st_ctime)); // print time in calendar form
     ftime[strlen(ftime)-1] = 0; // kill \n at end
@@ -251,4 +264,72 @@ int ls_file(char *fname)
         printf(" -> %s", linkname); // print linked name
     }
     printf("\n");
+}
+
+int get_file(char *filename) {
+   int count = 0;
+   FILE *recv_file;
+   
+   char buf[MAX];
+   bzero(buf, MAX);
+   
+   int n, file_size = 0;
+
+   char filebuf[MAX];
+   strcat(filebuf, "get ");
+   strcat(filebuf, filename);
+   write(sock, filebuf, MAX); // send file request
+   read(sock, buf, MAX); // get file size
+
+   if(strcmp(buf, "BAD") == 0 || buf == NULL) {
+      printf("GET: Error receiving filesize from server!\n");
+      return 0;
+   }
+
+   file_size = atoi(buf);
+   printf("FILE SIZE: %d\n", file_size);
+   recv_file = fopen(filename, "w");
+
+   if (recv_file == NULL) {
+      printf("GET: Failed to acquire file!\n");
+      return 0;
+   }
+
+   while (count < file_size) {
+      n = read(sock, buf, MAX);
+      count += n;
+      fwrite(buf, sizeof(char), n, recv_file);
+   }
+   
+   fclose(recv_file);
+}  
+
+int send_file(char *filename) {
+   char buf[MAX];
+   bzero(buf, MAX);
+
+   struct stat file_stat;
+   int filesize, sent_bytes;
+   int fd = open(filename, O_RDONLY);
+
+   if(fstat(fd, &file_stat) < 0) {
+      sent_bytes = write(sock, "BAD", MAX);
+      return 0;
+   }
+   printf("File size: %ld\n", file_stat.st_size);
+
+   char size[30];
+   sprintf(size, "%ld", file_stat.st_size);
+
+   sent_bytes = write(sock, size, MAX);
+
+   int remain_data = file_stat.st_size;
+
+   while(sent_bytes = read(fd, buf, MAX)) {
+      write(sock, buf, sent_bytes);
+      remain_data -= sent_bytes;
+      printf("Server sent %d bytes from file, remaining data: %d\n", sent_bytes, remain_data);
+   }
+
+   close(fd);
 }
