@@ -24,17 +24,25 @@ void command_select(char *cmd)
         getcwd(cwd, sizeof(cwd));
         n = write(csock, cwd, MAX);
     }
-    else if(!strcmp(args[0], "cd"))
-    {
+    else if(!strcmp(args[0], "cd")){
         if(command_cd(nargs, args))
             n = write (csock, "Invalid Command!\n", sizeof("Invalid Command!\n"));
         else
-            n = write (csock, "Directory successfully changed!\n", sizeof("Directory successfully changed!\n"));  
+             n = write (csock, "Directory successfully changed!\n", sizeof("Directory successfully changed!\n"));  
+    }
+    else if(!strcmp(args[0], "rm")){
+          n = command_rm(nargs, args);
+    }
+    else if(!strcmp(args[0], "rmdir")){
+          n = command_rmdir(nargs, args);
+    }
+    else if(!strcmp(args[0], "mkdir")){
+          n = command_mkdir(nargs, args);
     }
     else if(!strcmp(args[0], "get")) {
         send_file(args[1]);
     }
-    if(!strcmp(args[0], "put")) {
+    else if(!strcmp(args[0], "put")) {
         get_file(args[1]);
     }
     else
@@ -46,29 +54,34 @@ void command_select(char *cmd)
 // Server initialization code:
 int server_init()
 {
-   printf("==================== server init ======================\n");   
-   // get DOT name and IP address of this host
-   printf("1 : create a TCP STREAM socket\n");
-   mysock = socket(AF_INET, SOCK_STREAM, 0);
-   
-   printf("2 : fill server_addr with host IP and PORT# info\n");
-   // initialize the server_addr structure
-   server_addr.sin_family = AF_INET;                  // for TCP/IP
-   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);   // THIS HOST IP address  
-   server_addr.sin_port = htons(SERVER_PORT);         // port number
+    char curdir[512];
+    getcwd(curdir, 512);       // get CWD into char curdir[ ];
+    printf("server : chroot to %s\n", curdir);
+    chroot(curdir); // change / to current DIR 
 
-   printf("3 : bind socket to server address\n");
-   // bind syscall: bind the socket to server_addr info
-   r = bind(mysock,(struct sockaddr *)&server_addr, sizeof(server_addr));
-   if (r < 0){
-       printf("bind failed\n");
-       exit(3);
-   }
-   printf("host = %s port = %d\n", SERVER_HOST, SERVER_PORT);
-   
-   printf("4 : server is listening ....\n");
-   listen(mysock, 5); // listen queue length = 5
-   printf("===================== init done =======================\n");
+    printf("==================== server init ======================\n");   
+    // get DOT name and IP address of this host
+    printf("1 : create a TCP STREAM socket\n");
+    mysock = socket(AF_INET, SOCK_STREAM, 0);
+    
+    printf("2 : fill server_addr with host IP and PORT# info\n");
+    // initialize the server_addr structure
+    server_addr.sin_family = AF_INET;                  // for TCP/IP
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);   // THIS HOST IP address  
+    server_addr.sin_port = htons(SERVER_PORT);         // port number
+
+    printf("3 : bind socket to server address\n");
+    // bind syscall: bind the socket to server_addr info
+    r = bind(mysock,(struct sockaddr *)&server_addr, sizeof(server_addr));
+    if (r < 0){
+        printf("bind failed\n");
+        exit(3);
+    }
+    printf("host = %s port = %d\n", SERVER_HOST, SERVER_PORT);
+    
+    printf("4 : server is listening ....\n");
+    listen(mysock, 5); // listen queue length = 5
+    printf("===================== init done =======================\n");
 }
 
 int command_cd(int nargs, char * args[])
