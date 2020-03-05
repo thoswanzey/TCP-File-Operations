@@ -19,7 +19,7 @@
 #define MAX          256
 #define SERVER_HOST "localhost"
 #define SERVER_IP   "127.0.0.1"
-#define SERVER_PORT  1234
+#define SERVER_PORT  1235
 
 
 
@@ -35,6 +35,7 @@ void ls_dir(char *dname);
 int ls_file(char *fname);
 int get_file(char *filename);
 int send_file(char *filename);
+void command_ls(int nargs, char *dir);
 
 #endif
 

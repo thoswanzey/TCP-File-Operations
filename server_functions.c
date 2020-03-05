@@ -3,6 +3,7 @@
 extern struct sockaddr_in  server_addr;
 extern int mysock, csock;
 extern int n, r;
+extern char *t1, *t2;
 
 void command_select(char *cmd)
 {
@@ -44,6 +45,9 @@ void command_select(char *cmd)
     }
     else if(!strcmp(args[0], "put")) {
         get_file(args[1]);
+    }
+    if(!strcmp(args[0], "ls")) {
+        command_ls(nargs, args);
     }
     else
     {
@@ -219,4 +223,100 @@ int command_mkdir(int nargs, char * args[]){
     }
 
     return write(csock, message, sizeof(message));
+}
+
+int command_ls(int nargs, char * args[])
+{
+    struct stat mystat, *sp = &mystat;
+    int r;
+    char *filename, path[1024], cwd[256];
+    filename = "./"; // default to CWD
+    if(nargs > 2){
+        printf(RED"Invalid Command!\n"RESET);
+        return -1;
+    }
+    else if (nargs == 2)
+        filename = args[1]; // if specified a filename
+    if (r = lstat(filename, sp) < 0){
+        printf("no such file %s\n", filename);
+        return -1;
+    }
+    strcpy(path, filename);
+    if (path[0] != '/'){ // filename is relative : get CWD path
+        getcwd(cwd, 256);
+        strcpy(path, cwd); strcat(path, "/"); strcat(path,filename);
+    }
+    if (S_ISDIR(sp->st_mode))
+        ls_dir(path);
+    else
+        ls_file(path);
+
+    write(csock, "\r\r", MAX); // EOF, done sending ls lines
+}
+
+
+void ls_dir(char *dname)
+{
+    struct dirent *ep;
+    DIR *dp = opendir(dname);
+    char temp[1000];
+    while (ep = readdir(dp)){
+        strcpy(temp, dname);
+        strcat(temp, "/");
+        strcat(temp, ep->d_name);
+        ls_file(temp);
+    }
+}
+
+
+int ls_file(char *fname)
+{
+    struct stat fstat, *sp;
+    int r, i;
+    char ftime[64];
+    char strbuf[MAX];
+    char typebuf[20];
+
+    sp = &fstat;
+    if ( (r = lstat(fname, &fstat)) < 0){
+        printf("\n can’t stat %s\n", fname);
+        return -1;
+    }
+
+    if ((sp->st_mode & 0xF000) == 0x8000) // if (S_ISREG())
+        sprintf(strbuf + strlen(strbuf), "%c" , '-');
+    if ((sp->st_mode & 0xF000) == 0x4000) // if (S_ISDIR())
+        sprintf(strbuf + strlen(strbuf), "%c" , 'd');
+    if ((sp->st_mode & 0xF000) == 0xA000) // if (S_ISLNK())
+        sprintf(strbuf + strlen(strbuf), "%c" , 'l');
+    for (i=8; i >= 0; i--){
+        if (sp->st_mode & (1 << i)) // print r|w|x
+            sprintf(strbuf + strlen(strbuf), "%c", t1[i]);
+        else
+            sprintf(strbuf + strlen(strbuf), "%c", t2[i]); // or print -
+    }
+
+    strcat(strbuf, " ");
+    
+    strcpy(ftime, ctime(&sp->st_ctime)); // print time in calendar form
+    ftime[strlen(ftime)-1] = 0; // kill \n at end
+
+    // print -> linkname if symbolic file
+    char linkname[512];
+    if ((sp->st_mode & 0xF000)== 0xA000){
+        strcat(linkname, "-> ");
+        readlink(fname, linkname+strlen(linkname), 512);
+    }
+    
+    sprintf(strbuf + strlen(strbuf), "%4lud %4d %4d %8ld %s %s %s", 
+                        sp->st_nlink, 
+                        sp->st_gid, 
+                        sp->st_uid, 
+                        sp->st_size, 
+                        ftime, 
+                        basename(fname),
+                        linkname);
+
+    write(csock, strbuf, MAX);
+    bzero(strbuf, MAX);
 }

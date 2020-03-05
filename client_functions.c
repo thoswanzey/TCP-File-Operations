@@ -93,6 +93,10 @@ int local_command_handler(void){
         write(sock, buf, MAX); // send file request
         send_file(args[1]);
     }
+    else if(!strcmp(args[0], "ls"))
+    {
+        command_ls(nargs, args[1]);
+    }
     //..
     else{
         return 0;  //Pass to server
@@ -101,7 +105,6 @@ int local_command_handler(void){
     return 1;    //local command, so no need to send to server
 
 }
-
 
 void command_lcd(int nargs, char * args[])
 {
@@ -178,9 +181,6 @@ void command_lcat(int nargs, char * args[]){
   
 }
 
-
-
-
 int command_lls(int nargs, char * args[])
 {
     struct stat mystat, *sp = &mystat;
@@ -221,7 +221,6 @@ void ls_dir(char *dname)
         ls_file(temp);
     }
 }
-
 
 int ls_file(char *fname)
 {
@@ -266,16 +265,39 @@ int ls_file(char *fname)
     printf("\n");
 }
 
+void command_ls(int nargs, char *dir)
+{
+    char buf[MAX], filebuf[MAX];
+
+    if(nargs > 1) // if directory or file arg
+    {
+        strcat(filebuf, "ls ");
+        strcat(filebuf, dir);
+        write(sock, filebuf, MAX); // send file request
+    }
+    else
+    {
+        write(sock, "ls", sizeof("ls"));
+    }
+    
+    int n = 1;
+    
+    while(strcmp(buf, "\r\r")) // read lines until EOF
+    {
+        n = read(sock, buf, MAX); // get file size
+        printf("%s\n", buf);
+    }
+}
+
 int get_file(char *filename) {
    int count = 0;
    FILE *recv_file;
    
-   char buf[MAX];
+   char buf[MAX], filebuf[MAX];
    bzero(buf, MAX);
    
    int n, file_size = 0;
 
-   char filebuf[MAX];
    strcat(filebuf, "get ");
    strcat(filebuf, filename);
    write(sock, filebuf, MAX); // send file request
