@@ -291,10 +291,11 @@ int ls_file(char *fname)
     // print -> linkname if symbolic file
     char linkname[512];
     if ((sp->st_mode & 0xF000)== 0xA000){
-        readlink(fname, linkname, 512);
+        strcat(linkname, "-> ");
+        readlink(fname, linkname+strlen(linkname), 512);
     }
     
-    sprintf(strbuf + strlen(strbuf), "%lud %d %d %ld %s %s -> %s", 
+    sprintf(strbuf + strlen(strbuf), "%4lud %4d %4d %8ld %s %s %s", 
                         sp->st_nlink, 
                         sp->st_gid, 
                         sp->st_uid, 
