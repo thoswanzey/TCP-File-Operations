@@ -280,7 +280,7 @@ void command_ls(int nargs, char *dir)
         write(sock, "ls", sizeof("ls"));
     }
     
-    int n = 1;
+    int n;
     
     while(strcmp(buf, "\r\r")) // read lines until EOF
     {
