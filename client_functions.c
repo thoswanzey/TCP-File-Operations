@@ -268,7 +268,9 @@ int ls_file(char *fname)
 void command_ls(int nargs, char *dir)
 {
     char buf[MAX], filebuf[MAX];
-
+    bzero(buf, MAX);
+    bzero(filebuf, MAX);
+    
     if(nargs > 1) // if directory or file arg
     {
         strcat(filebuf, "ls ");
