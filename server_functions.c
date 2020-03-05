@@ -46,7 +46,7 @@ void command_select(char *cmd)
     else if(!strcmp(args[0], "put")) {
         get_file(args[1]);
     }
-    if(!strcmp(args[0], "ls")) {
+    else if(!strcmp(args[0], "ls")) {
         command_ls(nargs, args);
     }
     else
